@@ -71,16 +71,17 @@ ui <- dashboardPagePlus(
                 ),
                 tags$script(
                   '
-                  if (document.referrer.indexOf("/my-pjw") != -1) {
+                  if (document.referrer.indexOf("MyProject_sitepop") != -1) {
                   }else{
                     alert("This is the wrong approach..")
                     window.location.replace("about:blank")
                   }
-                            
+
                  setTimeout(function(){
                    var temp = window.location.hash;
                    Shiny.onInputChange("myInput",temp);
                  }, 1000);
+
                  $(document).bind("keydown",function(e){
                      if ( e.keyCode == 123 ) {
                          e.preventDefault();
@@ -88,7 +89,9 @@ ui <- dashboardPagePlus(
                          e.returnValue = false;
                      }
                  });
+
                  document.onmousedown=disableclick;
+
                  function disableclick(event){
                      if (event.button==2) {
                          alert("For security reasons, you cannot use the right the RMB(right mouse button).");
@@ -97,7 +100,6 @@ ui <- dashboardPagePlus(
                  }
                 '
                 ),
-                textOutput("test")
               )
       ),
       #####trajectory clustering UI#####
