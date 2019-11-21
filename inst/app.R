@@ -71,26 +71,31 @@ ui <- dashboardPagePlus(
                 ),
                 tags$script(
                   '
-       setTimeout(function(){
-         var temp = window.location.hash;
-         //스크립트 변수를 R변수로 change
-         Shiny.onInputChange("myInput",temp);
-       }, 1000);
-       $(document).bind("keydown",function(e){
-           if ( e.keyCode == 123 ) {
-               e.preventDefault();
-               alert("Developter Tools are not available.");
-               e.returnValue = false;
-           }
-       });
-       document.onmousedown=disableclick;
-       function disableclick(event){
-           if (event.button==2) {
-               alert("For security reasons, you cannot use the right the RMB(right mouse button).");
-               return false;
-           }
-       }
-       '
+                  if (document.referrer.indexOf("/my-pjw") != -1) {
+                  }else{
+                    alert("This is the wrong approach..")
+                    window.location.replace("about:blank")
+                  }
+                            
+                 setTimeout(function(){
+                   var temp = window.location.hash;
+                   Shiny.onInputChange("myInput",temp);
+                 }, 1000);
+                 $(document).bind("keydown",function(e){
+                     if ( e.keyCode == 123 ) {
+                         e.preventDefault();
+                         alert("Developter Tools are not available.");
+                         e.returnValue = false;
+                     }
+                 });
+                 document.onmousedown=disableclick;
+                 function disableclick(event){
+                     if (event.button==2) {
+                         alert("For security reasons, you cannot use the right the RMB(right mouse button).");
+                         return false;
+                     }
+                 }
+                '
                 ),
                 textOutput("test")
               )
