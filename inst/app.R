@@ -1,5 +1,5 @@
 # #check package ready
-source(file.path(.libPaths()[1],"ICARUSviewer/global.R"))
+source(file.path(.libPaths()[1],"RODwings/global.R"))
 check.packages("Rcpp")
 check.packages("dplyr")
 check.packages("reshape2")
@@ -21,7 +21,7 @@ check.packages("lmerTest")
 check.packages("lcmm")
 check.packages("ggfortify")
 check.packages("survival")
-check.packages("ICARUSviewer")
+check.packages("RODwings")
 
 ui <- dashboardPagePlus(
   header = dashboardHeaderPlus(
@@ -46,7 +46,7 @@ ui <- dashboardPagePlus(
     ),
     #####call cohort Table UI#####
     rightSidebarTabContent(
-      id = "rightsider2", title = "Call Data", icon = "file-alt", 
+      id = "rightsider2", title = "Call Data", icon = "file-alt",
       actionButton("loadData", "Load cohorts"),
       textOutput("loadDataDone")
     )
@@ -62,12 +62,12 @@ ui <- dashboardPagePlus(
   #####analysis#####
   body = dashboardBody(
     tabItems(
-      tabItem(tabName = "WINGS", 
+      tabItem(tabName = "WINGS",
               titlePanel(br(strong("ICARUS WINGS"))),
               mainPanel(
-                fluidRow(boxPlus(width = 12, 
+                fluidRow(boxPlus(width = 12,
                                  "Immune/Inflammatory DIsease Common Data Model Augmentation for Research Union System (ICARUS) Web-based INFOGraphics Service (WINGS)")
-                         
+
                 ),
                 tags$script(
                   '
@@ -109,9 +109,9 @@ ui <- dashboardPagePlus(
                                      h4("if clustering finished, then show results"),br(),
                                      actionButton("show_cluster","Show results!"),
                                      width = 2),
-                        mainPanel(fluidRow(gradientBox(plotOutput("TrajectoryClustering_withIndividual"), icon = icon("chart-line"), gradientColor = "light-blue", 
+                        mainPanel(fluidRow(gradientBox(plotOutput("TrajectoryClustering_withIndividual"), icon = icon("chart-line"), gradientColor = "light-blue",
                                                        footer = "Observed individual trajectories and estimated representative trajectories"),
-                                           gradientBox(plotOutput("TrajectoryClustering_onlyCI"), icon = icon("chart-line"), gradientColor = 'light-blue', 
+                                           gradientBox(plotOutput("TrajectoryClustering_onlyCI"), icon = icon("chart-line"), gradientColor = 'light-blue',
                                                        footer = "Estimated representative trajectories. The shaded areas indicate 95% CI"),
                                            dataTableOutput("TrajectoryClusteringTable" ),
                                            verbatimTextOutput("BICandAIC"),
@@ -143,7 +143,7 @@ ui <- dashboardPagePlus(
                                                fluidRow( column(1,actionButton("characteristic_analyze","Analyze") ),
                                                          # progressBar(id = "baseline", value = 0, total = 100, title = "", display_pct = TRUE ),
                                                          br(),plotOutput("RRplot") ),
-                                               fluidRow(br(),dataTableOutput("totalBaselineCharacteristicsTable") ) 
+                                               fluidRow(br(),dataTableOutput("totalBaselineCharacteristicsTable") )
                                       ),
                                       #####longitudinal analysis#####
                                       tabPanel("Longitudinal",
@@ -161,14 +161,14 @@ ui <- dashboardPagePlus(
                                                                      footer = "Only estimated profiles" ),
                                                          br(),
                                                          strong("The long-term change of measurement data over 15 years"),
-                                                         dataTableOutput("longitudinalTable") 
+                                                         dataTableOutput("longitudinalTable")
                                                )
-                                               
+
                                       ),
                                       #####clinical event#####
                                       tabPanel("clinical event",
                                                fluidRow( h3(strong("Compare clinical event between cohorts")) ),
-                                               fluidRow( h4(strong("Put in event cohort Id")), 
+                                               fluidRow( h4(strong("Put in event cohort Id")),
                                                          uiOutput("ClinicalEventCohortId"),
                                                          column(1,actionButton("analyzeEvent","Analyze") ) ),
                                                fluidRow( br(),
@@ -180,19 +180,19 @@ ui <- dashboardPagePlus(
                                                          numericInput("survivalEndDate", 'if you want one year survival, write down "365" ',0),
                                                          column(1,actionButton("analyzeSurvival","Analyze") ) ),
                                                fluidRow( br(),
-                                                         gradientBox(plotOutput("EventSurvivalPlot"), icon = icon("balance-scale"), gradientColor = "light-blue", 
+                                                         gradientBox(plotOutput("EventSurvivalPlot"), icon = icon("balance-scale"), gradientColor = "light-blue",
                                                                      footer = "Kaplan-Meier survival curve for the time to clinical event"),
                                                          verbatimTextOutput("survivalAnalysisResults"))
                                       )
                           )
-                          
-                        ) 
+
+                        )
               )
       ),
       #####prediction model#####
       tabItem(tabName = "prediction",
               titlePanel( br(strong("Simple prediction model")) ),
-              fluidRow( h4(strong("Simple prediction model was developed using PatientLevelPrediction package")), 
+              fluidRow( h4(strong("Simple prediction model was developed using PatientLevelPrediction package")),
                         sidebarPanel(uiOutput("Target_cohort"),
                                      uiOutput("Outcome_cohort"),
                                      numericInput("Risk_window_start","Risk window start",""),
@@ -215,7 +215,7 @@ ui <- dashboardPagePlus(
   )
 )
 
-#####server code#####  
+#####server code#####
 server <- function(input, output, session) {
   #####1.right side menu : DB connection#####
   output$sqltype<-renderUI({
@@ -236,7 +236,7 @@ server <- function(input, output, session) {
     CohortSchema <<- input$Resultschema
     cohortTable <<- input$cohortTable
     connection <<-DatabaseConnector::connect(connectionDetails)
-    
+
     "Database connection is done!"
   })
   output$dbconnectDone <- renderText({ DBconnect() })
@@ -257,10 +257,10 @@ server <- function(input, output, session) {
   output$cohortId_trajectory<-renderUI({
     selectInput("target_cluster_cohort","Target cohort ID",choices = sort(unique(totalCohort$cohortDefinitionId)) )
   })
-  
+
   #####Java script#####
   output$test <- renderPrint( input$myInput )
-  
+
   trajectoryClustering <- eventReactive(input$do_cluster,{
     #load temporal measurement data
     allclustering_target <- getAllLongitudinal(connectionDetails = connectionDetails,
@@ -291,7 +291,7 @@ server <- function(input, output, session) {
     return(plot_cluster)
   })
   output$TrajectoryClustering_withIndividual<- renderPlot({ plot_lcmm_cluster_withIndividual() })
-  
+
   plot_lcmm_cluster_onlyCI <- eventReactive(input$show_cluster,{
     plot_cluster <- latent_longitudinal_plot(lcmm_classification_result_list = lcmm_cluster_result_list,
                                              individual_trajectories = FALSE,
@@ -299,7 +299,7 @@ server <- function(input, output, session) {
     return(plot_cluster)
   })
   output$TrajectoryClustering_onlyCI<- renderPlot({ plot_lcmm_cluster_onlyCI() })
-  
+
   table_lcmm_cluster <- eventReactive(input$show_cluster,{
     table_cluster <- latent_longitudinal_table(lcmm_classification_result_list = lcmm_cluster_result_list,
                                                cluster_number = input$clusterNumber)
@@ -310,7 +310,7 @@ server <- function(input, output, session) {
   BICAIC <- eventReactive(input$show_cluster,{
     paste("BIC score is",lcmm_cluster_result_list$fit_BIC, "and", "AIC score is",lcmm_cluster_result_list$fit_AIC,sep = " ")
   })
-  output$BICandAIC <- renderText({ BICAIC() }) 
+  output$BICandAIC <- renderText({ BICAIC() })
   #insert at cohort table
   insertCohortNew <- eventReactive(input$insert_trajectory_cluster,{
     insertCohort(newCohortIdSet = as.character(input$trajectoryCohortIdSet),
@@ -345,9 +345,9 @@ server <- function(input, output, session) {
   demographic_result <- eventReactive(input$characteristic_analyze,{
     # cohort_id_set setting
     cohortDefinitionIdsetFive <- c(input$cohort1,input$cohort2,input$cohort3,input$cohort4,input$cohort5)
-    cohortDefinitionIdset_selected <- cohortDefinitionIdsetFive[cohortDefinitionIdsetFive != 'select'] 
+    cohortDefinitionIdset_selected <- cohortDefinitionIdsetFive[cohortDefinitionIdsetFive != 'select']
     cohortDefinitionIdSet <- as.numeric(cohortDefinitionIdset_selected)
-    # demographics 
+    # demographics
     demographicRaw <- charterstic_manufacture(cohort_definition_id_set = cohortDefinitionIdSet )
     demographicSummary <- characteristic_summary(characteristic_manufac = demographicRaw)
     demographicpvalue <- characteristic_pvalue(characteristic_manufac = demographicRaw)
@@ -376,18 +376,18 @@ server <- function(input, output, session) {
     colnames(measureSum)[1] <- "baseline_Measure"
     characteristicsAllSum <- rbind(demographicSum,comorbSum,measureSum)
     RRplot     <- RRplot(RRResult = RR_pvalue)
-    
+
     resultList <- list(allCharacteristicsTable = characteristicsAllSum,
                        plotForComorbidity = RRplot)
   })
   output$RRplot <- renderPlot({  demographic_result()[[2]] })
   output$totalBaselineCharacteristicsTable <- renderDataTable({ withProgress(message = "Baseline characteristics were analyzed...",value = 1, { demographic_result()[[1]] }) })
-  
+
   #####longitudinal Analysis#####
   load_longitudinal <- eventReactive(input$load_all_measurement,{
     # cohort_id_set setting
     cohortDefinitionIdsetFive <- c(input$cohort1,input$cohort2,input$cohort3,input$cohort4,input$cohort5)
-    cohortDefinitionIdset_selected <- cohortDefinitionIdsetFive[cohortDefinitionIdsetFive != 'select'] 
+    cohortDefinitionIdset_selected <- cohortDefinitionIdsetFive[cohortDefinitionIdsetFive != 'select']
     cohortDefinitionIdSet <- as.numeric(cohortDefinitionIdset_selected)
     # load all long-term measured data
     allLongitudinalList <- list()
@@ -421,51 +421,51 @@ server <- function(input, output, session) {
                                        pftIndividual = TRUE)
     plot_lme_onlyEstimated <- plotLmm(longitudinal_result = lmeResultList,
                                       pftIndividual = FALSE)
-    table_lme_Estimated <- tableLmm(longitudinal_result = lmeResultList) 
-    
+    table_lme_Estimated <- tableLmm(longitudinal_result = lmeResultList)
+
     lme_result <- list(plot_lme_allMeasurement,plot_lme_onlyEstimated,table_lme_Estimated)
   })
-  
+
   output$longitudinalAnalysis <- renderPlot({ withProgress(message = "Longitudinal Analysis...",value = 1, { longitudinalLME()[[1]] }) })
   output$longutidinalAnalysis_only <- renderPlot({ longitudinalLME()[[2]] })
   output$longitudinalTable <- renderDataTable({ longitudinalLME()[[3]] })
-  
+
   #####Tab set : clinical event#####
   clinicalEvent_frequency <- eventReactive(input$analyzeEvent,{
     # cohort_id_set setting
     cohortDefinitionIdsetFive <- c(input$cohort1,input$cohort2,input$cohort3,input$cohort4,input$cohort5)
-    cohortDefinitionIdset_selected <- cohortDefinitionIdsetFive[cohortDefinitionIdsetFive != 'select'] 
+    cohortDefinitionIdset_selected <- cohortDefinitionIdsetFive[cohortDefinitionIdsetFive != 'select']
     cohortDefinitionIdSet <- as.numeric(cohortDefinitionIdset_selected)
-    
+
     # filter cohort I need
     call_event_data <- call_event(cohort_definition_id_set = cohortDefinitionIdSet,
                                   cohortId_event = as.numeric(input$ClinicalEventCohortId))
-    
+
     # calculate yearly count and its figure
     event_table <- event_incidence(callEvent_result = call_event_data)
     event_plot  <- plot_event_rate(event_result = event_table)
-    
+
     event_out <- list(eventTable = event_table,
                       eventPlot = event_plot)
     return(event_out)
   })
-  
+
   output$ClinicalEventPlot <- renderPlot({ clinicalEvent_frequency()[[2]] })
   output$ClinicalEventTable <- renderDataTable({ clinicalEvent_frequency()[[1]] })
   #survival
   eventFreesurvival <- eventReactive(input$analyzeSurvival,{
     # cohort_id_set setting
     cohortDefinitionIdsetFive <- c(input$cohort1,input$cohort2,input$cohort3,input$cohort4,input$cohort5)
-    cohortDefinitionIdset_selected <- cohortDefinitionIdsetFive[cohortDefinitionIdsetFive != 'select'] 
+    cohortDefinitionIdset_selected <- cohortDefinitionIdsetFive[cohortDefinitionIdsetFive != 'select']
     cohortDefinitionIdSet <- as.numeric(cohortDefinitionIdset_selected)
-    
+
     eventFreeSurvivalResults <- eventFreeSurvival(cohort_definition_id_set = cohortDefinitionIdSet,
                                                   cohortId_event = as.numeric(input$ClinicalEventCohortId),
                                                   targetSurvivalEndDate = as.numeric(input$survivalEndDate))
   })
   output$EventSurvivalPlot <- renderPlot({ eventFreesurvival()[[2]] })
   output$survivalAnalysisResults <- renderPrint({ eventFreesurvival()[[1]] })
-  
+
   #####Menu Item 3 : prediction#####
   output$Target_cohort  <- renderUI({ selectInput("Target_cohort","Target Cohort ID",choices = sort(unique(totalCohort$cohortDefinitionId)) )   })
   output$Outcome_cohort <- renderUI({ selectInput("Outcome_cohort","Outcome Cohort ID",choices = sort(unique(totalCohort$cohortDefinitionId)) ) })
@@ -492,28 +492,28 @@ server <- function(input, output, session) {
     "Prediction is done!"
   })
   output$predictDone <- renderText({ withProgress(message = "Prediction is running...",value = 1, { prediction() }) })
-  
+
   # show prediction results
   AUROCplot <- eventReactive(input$ShowPredict,{
     auroc <- AUROCcurve(machineLearningData = plp_result)
     return(auroc)
   })
   output$AUROCcurve <- renderPlot({ AUROCplot() })
-  
+
   contributedCovariatePlot <- eventReactive(input$ShowPredict,{
     predictiveVariable <- plotPredictiveVariables(machineLearningData = plp_result,
                                                   rankCount = 20)
     return(predictiveVariable)
   })
   output$contributedCovariates <- renderPlot({ contributedCovariatePlot() })
-  
+
   contributedCovariateTable <- eventReactive(input$ShowPredict,{
     covariateTable <- tablePredictiveVariables(machineLearningData = plp_result,
                                                rankCount = 40)
     return(covariateTable)
   })
   output$covariateTable <- renderDataTable({ contributedCovariateTable() })
-  
+
   eraseAllData <- eventReactive(input$eraseData,{
     removeTempAndOutput()
     "your traces were erased!"

@@ -43,14 +43,14 @@ call_dataList<- function(connectionDetails,
                          Resultschema,
                          CDMschema,
                          cohortTable){
-  
+
     connectionDetails <-connectionDetails
     connection <- connection
 
     Sys.setlocale(category="LC_CTYPE", locale="C")
 
     ###load demographic data
-    sql <- SqlRender::readSql( paste0(.libPaths()[1],"/ICARUSviewer","/SQL/loadDemographic.sql") )
+    sql <- SqlRender::readSql( paste0(.libPaths()[1],"/RODwings","/SQL/loadDemographic.sql"))
     sql <- SqlRender::render(sql = sql,
                              resultDatabaseSchema = Resultschema,
                              cdmDatabaseSchema = CDMschema,
@@ -58,12 +58,12 @@ call_dataList<- function(connectionDetails,
     demographic_data<-DatabaseConnector::querySql(connection, sql, snakeCaseToCamelCase = TRUE)
 
     ##load asthma_cohort data
-    sql <- SqlRender::readSql( paste0(.libPaths()[1],"/ICARUSviewer","/SQL/loadAsthma_cohort.sql") )
+    sql <- SqlRender::readSql( paste0(.libPaths()[1],"/RODwings","/SQL/loadAsthma_cohort.sql"))
     sql <- SqlRender::render(sql = sql,
                              resultDatabaseSchema = Resultschema,
                              cohortTable = cohortTable)
     asthmacohort_data<-DatabaseConnector::querySql(connection, sql, snakeCaseToCamelCase = TRUE)
-    
+
     result<-list(demographic_data,
                  asthmacohort_data)
 

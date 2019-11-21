@@ -1,3 +1,3 @@
-outputFolder <- file.path(.libPaths()[1], "ICARUSviewer/Output")
-TempFolder <- file.path(.libPaths()[1], "ICARUSviewer/Temp")
+outputFolder <- file.path(.libPaths()[1],"RODwings/Output")
+TempFolder <- file.path(.libPaths()[1],"RODwings/Temp")
 options(fftempdir = TempFolder)
